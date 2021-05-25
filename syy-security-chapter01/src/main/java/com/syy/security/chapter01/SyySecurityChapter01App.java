@@ -1,4 +1,4 @@
-package syy.security.chapter01;
+package com.syy.security.chapter01;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
