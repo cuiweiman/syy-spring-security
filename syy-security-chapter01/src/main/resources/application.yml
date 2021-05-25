@@ -1,0 +1,17 @@
+server:
+  port: 9001
+
+
+spring:
+  application:
+    name: syy-security-chapter01
+
+
+    # 配置 用户名和密码。若不配置，则用户名默认为 user，密码打印在 控制台。
+  # 也可以配置在 syy.security.chapter01.config.SecurityConfig 中
+  #security:
+    # user:
+    # name: admin
+    # password: admin
+  resources:
+    static-locations: classpath:/static,classpath:/resources
