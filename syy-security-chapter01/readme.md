@@ -1,0 +1,3 @@
+- 简单接入 Spring Security OAuth2
+- 前后端不分离
+- 了解掌握 WebSecurityConfigurerAdapter 的配置
