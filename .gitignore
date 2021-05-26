@@ -1,6 +1,8 @@
 output
 .svn/
 
+.DS_Store
+
 .idea/
 *.iml
 target/

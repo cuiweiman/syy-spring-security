@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -18,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.annotation.Resource;
@@ -29,6 +29,7 @@ import java.util.Objects;
  * {@link AbstractAuthenticationProcessingFilter} Spring Security 验证过程；
  * {@link AbstractAuthenticationProcessingFilter#doFilter} Spring Security 验证过程；
  * {@link AbstractAuthenticationProcessingFilter#successfulAuthentication} Spring Security 从 session 中获取用户登陆信息；
+ * {@link AbstractRememberMeServices} Remember Me 功能
  *
  * @Description: 配置数据库 验证用户账号以及权限
  * @Author: cuiweiman
@@ -137,6 +138,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     out.flush();
                     out.close();
                 }).permitAll()
+
+                // 配置 remember me
+                .and().rememberMe().rememberMeParameter("rememberMe")
 
                 // 注销登陆后的跳转以及操作
                 .and().logout()
