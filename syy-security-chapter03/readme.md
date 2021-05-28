@@ -16,7 +16,7 @@
 这个问题在 chapter04 中解决 {com.syy.security.chapter04.config.MyAuthenticationProvider}
 
 
-### SpringSecurity 的执行流程
+### Spring Security 过滤器链
 
 ```bash
 请求——>SecurityContextPersistenceFilter——>UsernamePasswordAuthenticationFilter
@@ -25,6 +25,10 @@
 ```
 
 > 记住密码的时候，将认证信息保存到 session ，并持久化到数据库中
+
+### 当用户发送登陆请求时
+登陆请求——>UsernamePasswordAuthenticationFilter——>(未认证)AuthenticationManager接口——>AuthenticationProvider接口
+——>UserDetailsService接口加载用户信息数据——>UserDetails接口提供核心用户信息——>Authentication(已认证)
 
 
 ### Security的Remember Me功能
