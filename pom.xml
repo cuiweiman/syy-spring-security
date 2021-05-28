@@ -15,6 +15,7 @@
         <module>syy-security-chapter01</module>
         <module>syy-security-chapter02</module>
         <module>syy-security-chapter03</module>
+        <module>syy-security-chapter04</module>
     </modules>
 
     <properties>
@@ -29,6 +30,7 @@
         <lombok.version>1.18.10</lombok.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <mysql.version>8.0.23</mysql.version>
+        <kaptcha.version>2.3.2</kaptcha.version>
     </properties>
 
     <dependencyManagement>
@@ -78,6 +80,12 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.penggle</groupId>
+                <artifactId>kaptcha</artifactId>
+                <version>${kaptcha.version}</version>
             </dependency>
 
         </dependencies>

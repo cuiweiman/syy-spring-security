@@ -11,7 +11,9 @@
 5. 图形验证码过滤器中进行验证码校验
 6. 配置 remember me 功能，并提供两种方案，避免 remember me 令牌丢失带来的隐藏风险
 
-
+> 图形验证码过滤器存在的问题：图形验证 只需要在 登陆时进行验证即可，但是这里的自定义 过滤器 ，
+虽然根据请求路径进行了筛选，但是路径筛选的主要原因 还是因为 无论任何请求都会经过 这个过滤器。
+这个问题在 chapter04 中解决 {com.syy.security.chapter04.config.MyAuthenticationProvider}
 
 
 ### SpringSecurity 的执行流程
