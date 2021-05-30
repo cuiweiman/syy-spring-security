@@ -37,6 +37,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private DataSource dataSource;
 
+    @Resource
+    private MyWebAuthenticationDetailsSource myWebAuthenticationDetailsSource;
+
     @Bean
     protected JdbcTokenRepositoryImpl jdbcTokenRepository() {
         JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
@@ -120,6 +123,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/vc.jpg").permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin()
+                .authenticationDetailsSource(myWebAuthenticationDetailsSource)
                 .loginPage("/login.html").loginProcessingUrl(NormalConstants.SECURITY_LOGIN_URL)
                 .successHandler((req, resp, auth) -> {
                     resp.setContentType("application/json;charset=utf-8");
@@ -137,7 +141,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 }).permitAll()
 
                 // 配置 remember me
-                .and().rememberMe().rememberMeParameter("rememberMe")
+                .and().rememberMe()
                 .tokenRepository(jdbcTokenRepository())
 
                 // 注销登陆后的跳转以及操作
