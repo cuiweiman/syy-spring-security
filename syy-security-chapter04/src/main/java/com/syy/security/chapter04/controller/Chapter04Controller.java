@@ -25,7 +25,7 @@ public class Chapter04Controller {
     public String hello() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         MyWebAuthenticationDetails details = (MyWebAuthenticationDetails) authentication.getDetails();
-        log.info("登陆者信息：{}", details.toString());
+        log.info("登录者信息：{}", details.toString());
         return details.toString();
     }
 }

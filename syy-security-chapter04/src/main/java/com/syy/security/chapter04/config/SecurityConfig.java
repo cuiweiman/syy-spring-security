@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.annotation.Resource;
@@ -100,6 +101,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
+     * 可以将 session 创建以及销毁的事件及时感知到，并且调用 Spring 中的事件机制将相关的创建和销毁事件发布出去，
+     * 进而被 Spring Security 感知到，从而可以 在 {@link #configure(HttpSecurity)} 控制 客户端 sesssion 的登录数量
+     *
+     * @return HttpSessionEventPublisher
+     */
+    @Bean
+    protected HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+    }
+
+    /**
      * 配置 忽略拦截 的地址，一般为 静态目录地址
      *
      * @param web web
@@ -112,7 +124,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     /**
-     * 查看比较完整的配置 {@link com.syy.security.chapter03.config.SecurityConfig#configure(HttpSecurity)}
+     * 查看 权限控制 比较完整的配置 {@link com.syy.security.chapter03.config.SecurityConfig#configure(HttpSecurity)}
      *
      * @param http 入参
      * @throws Exception 异常
@@ -120,11 +132,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+                // 指定 任何人 都允许使用URL，不需要登陆。
                 .antMatchers("/vc.jpg").permitAll()
-                .anyRequest().authenticated()
-                .and().formLogin()
+                // 指定 其它URL，只允许被经过身份验证的用户访问
+                .anyRequest().authenticated();
+
+        http.formLogin()
                 .authenticationDetailsSource(myWebAuthenticationDetailsSource)
                 .loginPage("/login.html").loginProcessingUrl(NormalConstants.SECURITY_LOGIN_URL)
+
                 .successHandler((req, resp, auth) -> {
                     resp.setContentType("application/json;charset=utf-8");
                     PrintWriter out = resp.getWriter();
@@ -132,20 +148,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     out.flush();
                     out.close();
                 })
+
                 .failureHandler((req, resp, e) -> {
                     resp.setContentType("application/json;charset=utf-8");
                     PrintWriter out = resp.getWriter();
                     out.write(new ObjectMapper().writeValueAsString(e.getMessage()));
                     out.flush();
                     out.close();
-                }).permitAll()
+                }).permitAll();
 
-                // 配置 remember me
-                .and().rememberMe()
-                .tokenRepository(jdbcTokenRepository())
+        // 配置 remember me
+        http.rememberMe()
+                .tokenRepository(jdbcTokenRepository());
 
-                // 注销登陆后的跳转以及操作
-                .and().logout()
+        // 注销登录后的跳转以及操作
+        http.logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout", HttpMethod.GET.name()))
                 .logoutSuccessHandler((req, resp, authentication) -> {
                     resp.setContentType("application/json;charset=utf-8");
@@ -153,9 +170,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     out.write("注销成功");
                     out.flush();
                     out.close();
-                }).permitAll()
+                }).permitAll();
 
-                .and().csrf().disable();
+        // 关闭 csrf 功能
+        http.csrf().disable()
+                // 设置 客户端最大登录次数 为 1，超过次数后 默认会直接 踢掉 最先登录的客户端
+                .sessionManagement()
+                .maximumSessions(1)
+                // 客户端登录 达到最大次数后，禁止新的客户端登录
+                .maxSessionsPreventsLogin(true);
+
 
     }
 }

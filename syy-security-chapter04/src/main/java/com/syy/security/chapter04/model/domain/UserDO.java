@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Description: 用户
@@ -51,7 +52,7 @@ public class UserDO implements UserDetails {
     /**
      * 用户 角色 多对多
      */
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<RoleDO> roleDOS;
 
     @Override
@@ -63,34 +64,22 @@ public class UserDO implements UserDetails {
         return authorities;
     }
 
+
     @Override
-    public String getPassword() {
-        return password;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UserDO user = (UserDO) o;
+        return Objects.equals(username, user.username);
     }
 
     @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return accountNonExpired;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return accountNonLocked;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
+    public int hashCode() {
+        return Objects.hash(username);
     }
 
 }
