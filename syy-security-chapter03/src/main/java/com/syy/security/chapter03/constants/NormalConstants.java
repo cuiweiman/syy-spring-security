@@ -21,7 +21,7 @@ public class NormalConstants {
     public static final String SESSION_KEY_VERIFY_CODE = "verify_code";
 
     /**
-     * 登陆 接口
+     * 登录 接口
      */
     public static final String SECURITY_LOGIN_URL = "/doLogin";
 

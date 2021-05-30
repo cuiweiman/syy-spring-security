@@ -89,8 +89,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     /**
-     * 自定义配置 登陆页面等信息
-     * <p>登陆成功后的跳转：
+     * 自定义配置 登录页面等信息
+     * <p>登录成功后的跳转：
      * {@link AbstractAuthenticationFilterConfigurer#successHandler}
      * {@link AbstractAuthenticationFilterConfigurer#failureHandler}
      *
@@ -101,12 +101,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // 关闭 csrf
         http.csrf().disable()
-                // 配置 没有登陆时的返回信息
+                // 配置 没有登录时的返回信息
                 .exceptionHandling()
                 .authenticationEntryPoint((req, resp, authException) -> {
                     resp.setContentType("application/json;charset=utf-8");
                     PrintWriter out = resp.getWriter();
-                    out.write("尚未登陆，请先登陆：" + authException.getMessage());
+                    out.write("尚未登录，请先登录：" + authException.getMessage());
                 })
                 .and().authorizeRequests()
 
@@ -116,7 +116,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 其他请求路径的处理方式
                 .anyRequest().authenticated()
 
-                // 配置表单登陆,登陆成功的返回返回，以及登陆失败的返回信息
+                // 配置表单登录,登录成功的返回返回，以及登录失败的返回信息
                 .and().formLogin()
                 .loginPage("/login.html").loginProcessingUrl("/doLogin")
 
@@ -132,12 +132,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler((req, resp, e) -> {
                     resp.setContentType("application/json;charset=utf-8");
                     PrintWriter out = resp.getWriter();
-                    out.write("登陆失败：" + e.getMessage());
+                    out.write("登录失败：" + e.getMessage());
                     out.flush();
                     out.close();
                 }).permitAll()
 
-                // 注销登陆后的跳转以及操作
+                // 注销登录后的跳转以及操作
                 .and().logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout", HttpMethod.GET.name()))
                 .logoutSuccessHandler((req, resp, authentication) -> {

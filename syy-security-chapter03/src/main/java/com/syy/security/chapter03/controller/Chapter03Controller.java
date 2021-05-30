@@ -45,7 +45,7 @@ public class Chapter03Controller {
     }
 
     /**
-     * 获取当前 登陆 的用户信息：
+     * 获取当前 登录 的用户信息：
      * https://mp.weixin.qq.com/s?__biz=MzI1NDY0MTkzNQ==&mid=2247488050&idx=1&sn=3cea9d8eb13d7bda1407b111e5c8ee45
      *
      * @param authentication 对象会被自动注入

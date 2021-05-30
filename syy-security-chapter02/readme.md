@@ -1,2 +1,2 @@
-- 前后端分离的无状态方式的 spring security 登陆
+- 前后端分离的无状态方式的 spring security 登录
 - 配置 用户账号密码、角色权限

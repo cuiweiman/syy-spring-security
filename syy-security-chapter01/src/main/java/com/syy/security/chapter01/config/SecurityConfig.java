@@ -66,19 +66,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * 自定义配置 登陆页面等信息
+     * 自定义配置 登录页面等信息
      * 当我们定义了登录页面为 /login.html 的时候，Spring Security 也会帮我们自动注册一个 /login.html
      * 的接口，这个接口是 POST 请求，用来处理登录逻辑。
-     * <p>登陆成功后的跳转：
-     * {@link AbstractAuthenticationFilterConfigurer#defaultSuccessUrl}：登陆成功后跳转到的页面或接口，跳转后还可以继续重定向;
-     * {@link FormLoginConfigurer#successForwardUrl}：登陆成功后，必须跳转到 指定的页面;和 defaultSuccessUrl 只配置一个即可；
+     * <p>登录成功后的跳转：
+     * {@link AbstractAuthenticationFilterConfigurer#defaultSuccessUrl}：登录成功后跳转到的页面或接口，跳转后还可以继续重定向;
+     * {@link FormLoginConfigurer#successForwardUrl}：登录成功后，必须跳转到 指定的页面;和 defaultSuccessUrl 只配置一个即可；
      * {@link AbstractAuthenticationFilterConfigurer#successHandler}：包含了以上两个方法的功能，并且 与之对应的有 failureHandler。
-     * <p>类似的，登陆失败后的跳转：
-     * {@link AbstractAuthenticationFilterConfigurer#failureUrl}：登陆失败后 重定向到 指定的页面；
-     * {@link FormLoginConfigurer#failureForwardUrl(java.lang.String)}：登陆失败后，服务端跳转；二者设置一个即可。
-     * <p>配置 注销 登陆后的 页面跳转
-     * {@link LogoutConfigurer#logoutRequestMatcher}： 设置 注销登陆的 接口路径 以及 请求方式;
-     * {@link LogoutConfigurer#logoutUrl}：修改默认的 /logout 注销登陆请求接口，默认是 GET 请求;二者设置一个即可。
+     * <p>类似的，登录失败后的跳转：
+     * {@link AbstractAuthenticationFilterConfigurer#failureUrl}：登录失败后 重定向到 指定的页面；
+     * {@link FormLoginConfigurer#failureForwardUrl(java.lang.String)}：登录失败后，服务端跳转；二者设置一个即可。
+     * <p>配置 注销 登录后的 页面跳转
+     * {@link LogoutConfigurer#logoutRequestMatcher}： 设置 注销登录的 接口路径 以及 请求方式;
+     * {@link LogoutConfigurer#logoutUrl}：修改默认的 /logout 注销登录请求接口，默认是 GET 请求;二者设置一个即可。
      *
      * @param http http
      * @throws Exception 异常
@@ -89,24 +89,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests().anyRequest().authenticated()
 
-                // 默认 设置了 登陆页面为 login.html，并且将 security 的 登陆接口也设置成了 login.html
+                // 默认 设置了 登录页面为 login.html，并且将 security 的 登录接口也设置成了 login.html
                 // .and().formLogin().loginPage("/login.html")
-                // 分开设置 前端登陆页面 和 security 的后端登陆 接口
+                // 分开设置 前端登录页面 和 security 的后端登录 接口
                 .and().formLogin().loginPage("/login.html").loginProcessingUrl("/doLogin")
 
                 // 默认的 用户名和密码 是 username、password，可以配置修改
                 .usernameParameter("name").passwordParameter("pass")
 
-                // 登陆成功后的跳转
+                // 登录成功后的跳转
                 // .successForwardUrl("/index.html")
                 .defaultSuccessUrl("/index.html")
-                // 登陆失败后的跳转
+                // 登录失败后的跳转
                 .failureUrl("/loginfail.html")
                 .permitAll()
 
-                // 注销登陆后的跳转以及操作
+                // 注销登录后的跳转以及操作
                 .and().logout()
-                // 设置 注销登陆的 接口路径 以及 请求方式,咋一直报错 重定向次数过多 呢？每个阶段一个 permitAll() 方法。
+                // 设置 注销登录的 接口路径 以及 请求方式,咋一直报错 重定向次数过多 呢？每个阶段一个 permitAll() 方法。
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout", HttpMethod.GET.name()))
                 .deleteCookies().clearAuthentication(true).invalidateHttpSession(true)
                 .permitAll();

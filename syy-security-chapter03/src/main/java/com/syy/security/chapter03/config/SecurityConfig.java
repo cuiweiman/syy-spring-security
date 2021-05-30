@@ -31,10 +31,10 @@ import java.util.Objects;
  * {@link UsernamePasswordAuthenticationFilter} 在 Spring Security 中，认证与授权的相关校验都是在一系列的过滤器链中完成的，这是和认证相关的过滤器
  * {@link AbstractAuthenticationProcessingFilter} Spring Security 验证过程；
  * {@link AbstractAuthenticationProcessingFilter#doFilter} Spring Security 验证过程；
- * {@link AbstractAuthenticationProcessingFilter#successfulAuthentication} Spring Security 从 session 中获取用户登陆信息；
+ * {@link AbstractAuthenticationProcessingFilter#successfulAuthentication} Spring Security 从 session 中获取用户登录信息；
  * <p>
  * {@link AbstractRememberMeServices} Remember Me 功能,配置在{@link #configure(HttpSecurity)}，
- * 但是存在登陆隐患，若令牌被盗用，可能被，因此要采用一些措施保证安全行：
+ * 但是存在登录隐患，若令牌被盗用，可能被，因此要采用一些措施保证安全行：
  * 1. 持久化令牌：
  * 1.1 在持久化令牌中，新增了两个经过 MD5 散列函数计算的校验参数，一个是 series，另一个是 token。
  * 其中，series 只有当用户在使用用户名/密码登录时，才会生成或者更新，
@@ -129,7 +129,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     /**
-     * 自定义配置 登陆页面等信息
+     * 自定义配置 登录页面等信息
      *
      * @param http http
      * @throws Exception 异常
@@ -139,12 +139,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(verifyCodeFilter, UsernamePasswordAuthenticationFilter.class);
         // 关闭 csrf
         http.csrf().disable()
-                // 配置 没有登陆时的返回信息
+                // 配置 没有登录时的返回信息
                 .exceptionHandling()
                 .authenticationEntryPoint((req, resp, authException) -> {
                     resp.setContentType("application/json;charset=utf-8");
                     PrintWriter out = resp.getWriter();
-                    out.write("尚未登陆，请先登陆：" + authException.getMessage());
+                    out.write("尚未登录，请先登录：" + authException.getMessage());
                 })
                 .and().authorizeRequests()
 
@@ -160,7 +160,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 其他请求路径的处理方式
                 .anyRequest().authenticated()
 
-                // 配置表单登陆,登陆成功的返回返回，以及登陆失败的返回信息
+                // 配置表单登录,登录成功的返回返回，以及登录失败的返回信息
                 .and().formLogin()
                 .loginPage("/login.html").loginProcessingUrl(NormalConstants.SECURITY_LOGIN_URL)
 
@@ -176,7 +176,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler((req, resp, e) -> {
                     resp.setContentType("application/json;charset=utf-8");
                     PrintWriter out = resp.getWriter();
-                    out.write("登陆失败：" + e.getMessage());
+                    out.write("登录失败：" + e.getMessage());
                     out.flush();
                     out.close();
                 }).permitAll()
@@ -185,7 +185,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().rememberMe().rememberMeParameter("rememberMe")
                 .tokenRepository(jdbcTokenRepository())
 
-                // 注销登陆后的跳转以及操作
+                // 注销登录后的跳转以及操作
                 .and().logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout", HttpMethod.GET.name()))
                 .logoutSuccessHandler((req, resp, authentication) -> {

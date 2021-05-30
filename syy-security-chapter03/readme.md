@@ -6,12 +6,12 @@
 
 1. 前后端分离的方式，实现spring boot security
 2. 接入数据库和jpa，从数据库中获取用户信息
-3. 接入 图形验证码，登陆时需要携带验证码
+3. 接入 图形验证码，登录时需要携带验证码
 4. 在 Security 中配置 图形验证码过滤器
 5. 图形验证码过滤器中进行验证码校验
 6. 配置 remember me 功能，并提供两种方案，避免 remember me 令牌丢失带来的隐藏风险
 
-> 图形验证码过滤器存在的问题：图形验证 只需要在 登陆时进行验证即可，但是这里的自定义 过滤器 ，
+> 图形验证码过滤器存在的问题：图形验证 只需要在 登录时进行验证即可，但是这里的自定义 过滤器 ，
 虽然根据请求路径进行了筛选，但是路径筛选的主要原因 还是因为 无论任何请求都会经过 这个过滤器。
 这个问题在 chapter04 中解决 {com.syy.security.chapter04.config.MyAuthenticationProvider}
 
@@ -26,8 +26,8 @@
 
 > 记住密码的时候，将认证信息保存到 session ，并持久化到数据库中
 
-### 当用户发送登陆请求时
-登陆请求——>UsernamePasswordAuthenticationFilter——>(未认证)AuthenticationManager接口——>AuthenticationProvider接口
+### 当用户发送登录请求时
+登录请求——>UsernamePasswordAuthenticationFilter——>(未认证)AuthenticationManager接口——>AuthenticationProvider接口
 ——>UserDetailsService接口加载用户信息数据——>UserDetails接口提供核心用户信息——>Authentication(已认证)
 
 
