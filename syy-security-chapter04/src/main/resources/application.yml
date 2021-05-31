@@ -11,14 +11,14 @@ spring:
     show-sql: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://139.196.184.230:33066/syy_security?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: Cs@20180616
+    url: jdbc:mysql://*:*/syy_security?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: *
+    password: *
 
   redis:
-    host: 139.196.184.230
-    port: 63799
-    password: Cs@20180616
+    host: *
+    port: *
+    password: *
     database: 2
     timeout: 5000
 
