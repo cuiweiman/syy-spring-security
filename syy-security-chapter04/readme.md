@@ -84,7 +84,46 @@ value 则是该主题对应的 sessionid 组成的一个集合）。
 {@link com.syy.security.chapter04.model.domain.UserDO}
 
 
-#### 如何踢掉已登录的账号？
+### Spring Security 自带防火墙机制
+- HttpFirewall 接口：自动处理非法请求
+    - 实现类 DefaultHttpFirewall：普通防火墙设置，限制相对于 StrictHttpFirewall 要宽松一些。
+    - 实现类 StrictHttpFirewall：SpringSecurity 默认的防火墙设置，严格模式的防火墙设置。
+    - DefaultHttpFirewall 与 StrictHttpFirewall 的安全性不可比较，没有谁比谁跟安全。
+
+- 防护措施
+    - 只允许 白名单中的方法可以访问，即 不是所有的 HTTP 请求方法都可以执行：{@link org.springframework.security.web.firewall.StrictHttpFirewall.createDefaultAllowedHttpMethods}
+    如果需要　发送其他 Http 请求，需要重新提供一个 ScriptHttpFirewall
+        ```java
+        @Bean
+        HttpFirewall httpFirewall() {
+            StrictHttpFirewall firewall = new StrictHttpFirewall();
+            // 不做 HTTP 请求方法校验，什么方法都可以通过。
+            firewall.setUnsafeAllowAnyHttpMethod(true);
+            firewall.setAllowedHttpMethods 重新定义 可以通过的方法
+            return firewall;
+        }
+        ```
+    - security中 默认 请求地址不能有分号，因为这种方式传参不安全。
+        ```java
+        // 开放 ; 分号传参
+        @Bean
+        HttpFirewall httpFirewall() {
+            StrictHttpFirewall firewall = new StrictHttpFirewall();
+            firewall.setAllowSemicolon(true);
+            return firewall;
+        }
+        ```
+    - 必须是标准化的 URL：org.springframework.security.web.firewall.StrictHttpFirewall#isNormalized(javax.servlet.http.HttpServletRequest)
+    - 必须是可打印的 ASCII 字符；
+    - 双斜杠不被允许；除非配置 StrictHttpFirewall#setAllowUrlEncodedSlash(true)
+    - % 百分号不被允许；除非配置 setAllowUrlEncodedPercent(true)
+    - \与/ 正、反斜杠 不被允许；除非配置 setAllowBackSlash(true);setAllowUrlEncodedSlash(true)
+    - . 点号不被允许；除非配置 setAllowUrlEncodedPeriod(true)
+
+> 以上的 限制 都是针对 request URI 的，而不是 针对 请求参数，请求参数 不被以上限制。
+不建议修改 spring security 默认对 URI 的限制，因为都是为了保证不受攻击。
+
+
 
 
 
