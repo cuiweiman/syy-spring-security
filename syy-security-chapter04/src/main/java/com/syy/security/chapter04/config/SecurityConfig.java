@@ -19,6 +19,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -153,6 +155,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        // 关闭 csrf 功能
+        // http.csrf().disable()
+
+        // 配置 csrf 防御功能
+        http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .and()
+                // 设置 客户端最大登录次数 为 1，超过次数后 默认会直接 踢掉 最先登录的客户端
+                .sessionManagement()
+                .maximumSessions(1)
+                // 客户端登录 达到最大次数后，禁止新的客户端登录
+                .maxSessionsPreventsLogin(true);
+
         http.authorizeRequests()
                 // 指定 任何人 都允许使用URL，不需要登陆。
                 .antMatchers("/vc.jpg").permitAll()
@@ -161,7 +176,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.formLogin()
                 .authenticationDetailsSource(myWebAuthenticationDetailsSource)
-                .loginPage("/login.html").loginProcessingUrl(NormalConstants.SECURITY_LOGIN_URL)
+                .loginPage("/login.html")
+                .loginProcessingUrl(NormalConstants.SECURITY_LOGIN_URL)
 
                 .successHandler((req, resp, auth) -> {
                     resp.setContentType("application/json;charset=utf-8");
@@ -194,14 +210,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     out.close();
                 }).permitAll();
 
-        // 关闭 csrf 功能
-        http.csrf().disable()
-                // 设置 客户端最大登录次数 为 1，超过次数后 默认会直接 踢掉 最先登录的客户端
-                .sessionManagement()
-                .maximumSessions(1)
-                // 客户端登录 达到最大次数后，禁止新的客户端登录
-                .maxSessionsPreventsLogin(true);
-
-
     }
 }
+

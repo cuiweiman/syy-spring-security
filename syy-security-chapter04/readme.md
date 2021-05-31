@@ -1,3 +1,4 @@
+[TOC]
 
 ### chapter04
 1. AuthenticationProvider 定义了 Spring Security 中的验证逻辑
@@ -141,6 +142,36 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
+
+### CSRF攻击：跨域请求伪造
+#### CSRF 攻击方式
+[security 中防御 CSRF 攻击](https://mp.weixin.qq.com/s?__biz=MzI1NDY0MTkzNQ==&mid=2247488656&idx=2&sn=f00c9c9d51caf76caa76a813961ba38a)
+1. 假设用户打开了招商银行网上银行网站，并且登录。
+2. 登录成功后，网上银行会返回 Cookie 给前端，浏览器将 Cookie 保存下来。
+3. 用户在没有登出网上银行的情况下，在浏览器里边打开了一个新的选项卡，然后又去访问了一个危险网站。
+4. 这个危险网站上有一个超链接，超链接的地址指向了招商银行网上银行。
+5. 用户点击了这个超链接，由于这个超链接会自动携带上浏览器中保存的 Cookie，所以用户不知不觉中就访问了网上银行，进而可能给自己造成了损失。
+
+> 在 spring security 中，防御csrf攻击 的功能是 默认开启的，测试 csrf 时可以关闭：http.and().csrf().disable();
+
+#### CSRF 防御思路
+CSRF 防御，一个核心思路就是在前端请求中，添加一个随机数。
+因为在 CSRF 攻击中，黑客网站其实是不知道用户的 Cookie 具体是什么的，他是让用户自己发送请求到网上银行这个网站的，因为这个过程会自动携带上 Cookie 中的信息。
+所以防御思路就是这样：用户在访问网上银行时，除了携带 Cookie 中的信息之外，还需要携带一个随机数，如果用户没有携带这个随机数，则网上银行网站会拒绝该请求。
+黑客网站诱导用户点击超链接时，会自动携带上 Cookie 中的信息，但是却不会自动携带随机数，这样就成功的避免掉 CSRF 攻击了。
+
+> Spring Security 中默认就提供了 csrf 防御，但是需要开发者做的事情比较多。
+- 前后端不分离，
+- 前后端分离,配置如下。将 _csrf 参数放在 Cookie 中返回前端。
+    1. 黑客网站根本不知道 Cookie 里边存的啥，也不需要知道，因为 CSRF 攻击是浏览器自动携带上 Cookie 中的数据的。
+    2. 将服务端生成的随机数放在 Cookie 中，前端需要从 Cookie 中提取出来 _csrf 参数，然后拼接成参数传递给后端，单纯的将 Cookie 中的数据传到服务端是没用的。
+    ```java
+    /*
+    * 配置的时候通过 withHttpOnlyFalse 方法获取了 CookieCsrfTokenRepository 的实例，该方法会设置 Cookie 中的 HttpOnly 属性为 false，
+    * 也就是允许前端通过 js 操作 Cookie（否则前端没有办法获取到 _csrf）。
+    */
+    http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+    ```
 
 
 
