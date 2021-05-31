@@ -4,11 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.syy.security.chapter04.constants.NormalConstants;
 import com.syy.security.chapter04.service.impl.UserService;
-import org.junit.platform.commons.util.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
@@ -17,11 +14,10 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
@@ -74,7 +70,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     protected PasswordEncoder passwordEncoder() {
-        return new PasswordEncoder() {
+        // 配置 spring security 的 密码加密方式。
+        return new BCryptPasswordEncoder(10);
+        /*return new PasswordEncoder() {
             @Override
             public String encode(CharSequence rawPassword) {
                 return rawPassword.toString();
@@ -84,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             public boolean matches(CharSequence rawPassword, String encodedPassword) {
                 return !StringUtils.isBlank(encodedPassword) && encodedPassword.equals(rawPassword.toString());
             }
-        };
+        };*/
     }
 
     /**

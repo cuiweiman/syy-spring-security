@@ -186,6 +186,54 @@ CSRF 防御，一个核心思路就是在前端请求中，添加一个随机数
     - loadToken 则是如何加载 CsrfToken。
 - 参数校验：CsrfFilter#doFilterInternal
 
+### 两种账号密码的加密方式
+#### commons-codec
+```xml
+<dependency>
+    <groupId>commons-codec</groupId>
+    <artifactId>commons-codec</artifactId>
+</dependency>
+```
+```java
+@Component
+public class MyPasswordEncoder implements PasswordEncoder {
+    // 对密码进行加密，参数 rawPassword 就是你传入的明文密码，返回的则是加密之后的密文，这里的加密方案采用了 MD5。
+    @Override
+    public String encode(CharSequence rawPassword) {
+        return DigestUtils.md5DigestAsHex(rawPassword.toString().getBytes());
+    }
+
+    // 对密码进行比对，参数 rawPassword 相当于是用户登录时传入的密码，encodedPassword 则相当于是加密后的密码（从数据库中查询而来）
+    @Override
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        return encodedPassword.equals(DigestUtils.md5DigestAsHex(rawPassword.toString().getBytes()));
+    }
+}
+```
+> 用户在登录时，就会自动调用 matches 方法进行密码比对。
+  当然，在用户注册时，需要 将 密码加密后 再存入数据库中。
+
+##### SpringSecurity 提供的 BCryptPasswordEncoder
+```java
+// Security 中配置的 密码加密 方法
+@Bean
+PasswordEncoder passwordEncoder() {
+    // 即密钥的迭代次数（也可以不配置，默认为 10）
+    return new BCryptPasswordEncoder(10);
+}
+```
+```java
+// 用户注册时，需要 使用 BCryptPasswordEncoder 对 密码 进行加密。
+public int reg(String username, String password) {
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
+    String encodePasswod = encoder.encode(password);
+    return saveToDb(username, encodePasswod);
+}
+```
+
+
+
+
 
 
 
