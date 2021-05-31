@@ -231,10 +231,63 @@ public int reg(String username, String password) {
 }
 ```
 
+### 资源放行的两种策略
+#### 静态资源：SecurityConfig#configure
+如果是静态资源，直接配置在 方法中，不会经过 security 的过滤器链，直接不被 security 保护。
+```java
+@Override
+public void configure(WebSecurity web) throws Exception {
+    web.ignoring().antMatchers("/js/**", "/css/**", "/images/**", "/verifyCode/**");
+}
+```
 
+#### 后台接口的暴露方式：
+后台接口 也可以像 静态资源 一样配置，但是最好经过 security 过滤器链 的校验，因为这样在用户登录后才能拿到用户的登录信息。
 
+如果是后台接口的暴露，需要根据情况，采用不同的暴露策略：ExpressionUrlAuthorizationConfigurer
+- hasAnyRole：满足任何一个角色即可
+- hasRole：符合这一个角色
+- hasAuthority：拥有这一个 权限
+- hasAnyAuthority：满足任何一个权限即可
+- hasIpAddress：指定 IP 地址可以访问
+- permitAll：允许所有用户访问
+- anonymous：指定匿名允许访问
+- rememberMe：指定 路径 允许 rememberMe 用户可以访问
+- denyAll：指定路径不被任意用户访问
+- authenticated：指定路径需要被验证后才能访问
+- fullyAuthenticated：指定路径 必须 通过 用户名/密码 验证，rememberMe 也不行。
+- access：允许指定URL由任意表达式保护
 
+```java
+http.authorizeRequests()
+    // 指定 任何人 都允许使用URL，不需要登陆。
+    .antMatchers("/vc.jpg").permitAll()
+    // 指定 其它URL，只允许被经过身份验证的用户访问
+    .anyRequest().authenticated();
+```
 
+> 请求到达 UsernamePasswordAuthenticationFilter 之前，都会经过 SecurityContextPersistenceFilter 过滤器。
+> 1. SecurityContextPersistenceFilter 继承自 GenericFilterBean，而 GenericFilterBean 则是 Filter 的实现，
+所以 SecurityContextPersistenceFilter 最重要的方法就是 doFilter 了。
+> 2. 在 doFilter 方法中，它首先会从 repo 中读取一个 SecurityContext 出来，这里的 repo 实际上就是 HttpSessionSecurityContextRepository，
+读取 SecurityContext 的操作会进入到 readSecurityContextFromSession 方法中，在这里我们看到了读取的核心方法
+Object contextFromSession = httpSession.getAttribute(springSecurityContextKey);，这里的 springSecurityContextKey 对象的值
+就是 SPRING_SECURITY_CONTEXT，读取出来的对象最终会被转为一个 SecurityContext 对象。
+> 3. SecurityContext 是一个接口，它有一个唯一的实现类 SecurityContextImpl，这个实现类其实就是用户信息在 session 中保存的 value。
+> 4. 在拿到 SecurityContext 之后，通过 SecurityContextHolder.setContext 方法将这个 SecurityContext 设置到 ThreadLocal 中去，这样，
+在当前请求中，Spring Security 的后续操作，我们都可以直接从 SecurityContextHolder 中获取到用户信息了。
+> 5. 接下来，通过 chain.doFilter 让请求继续向下走（这个时候就会进入到 UsernamePasswordAuthenticationFilter 过滤器中了）。
+> 6. 在过滤器链走完之后，数据响应给前端之后，finally 中还有一步收尾操作，这一步很关键。这里从 SecurityContextHolder 中获取到 SecurityContext，
+获取到之后，会把 SecurityContextHolder 清空，然后调用 repo.saveContext 方法将获取到的 SecurityContext 存入 session 中。
+
+每一个请求到达服务端的时候，首先从 session 中找出来 SecurityContext ，然后设置到 SecurityContextHolder 中去，方便后续使用，
+当这个请求离开的时候，SecurityContextHolder 会被清空，SecurityContext 会被放回 session 中，方便下一个请求来的时候获取;
+登录请求来的时候，还没有登录用户数据，但是登录请求走的时候，会将用户登录数据存入 session 中，下个请求到来的时候，就可以直接取出来用了。
+
+1. 如果暴露登录接口的时候，使用了 静态资源的方式，没有走 Spring Security，过滤器链，则在登录成功后，就不会将登录用户信息存入 session 中，
+进而导致后来的请求都无法获取到登录用户信息（后来的请求在系统眼里也都是未认证的请求）；
+2. 如果登录请求正常，走了 Spring Security 过滤器链，但是后来的 A 请求没走过滤器链（采用前面提到的第一种方式放行），
+那么 A 请求中，无法通过 SecurityContextHolder 获取到登录用户信息的，因为它一开始就没经过 SecurityContextPersistenceFilter 过滤器链。
 
 
 
