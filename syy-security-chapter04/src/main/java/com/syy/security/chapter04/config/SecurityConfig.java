@@ -7,6 +7,8 @@ import com.syy.security.chapter04.service.impl.UserService;
 import org.junit.platform.commons.util.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
@@ -19,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -40,6 +44,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource
     private MyWebAuthenticationDetailsSource myWebAuthenticationDetailsSource;
+
+    @Resource
+    private FindByIndexNameSessionRepository sessionRepository;
+
+    /**
+     * session 整合 redis，集群 session 管理
+     * <p>
+     * 分布式 共享 session 解决方案：redis
+     * <p>
+     * 需要 去掉 配置的 HttpSessionEventPublisher，因为它是 session 内存管理策略，
+     * 会使用 security 提供的 内存 session 注册表。
+     *
+     * @return SpringSessionBackedSessionRegistry
+     */
+    @Bean
+    protected SpringSessionBackedSessionRegistry sessionRegistry() {
+        return new SpringSessionBackedSessionRegistry(sessionRepository);
+    }
 
     @Bean
     protected JdbcTokenRepositoryImpl jdbcTokenRepository() {
@@ -106,10 +128,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      *
      * @return HttpSessionEventPublisher
      */
-    @Bean
+    /*@Bean
     protected HttpSessionEventPublisher httpSessionEventPublisher() {
         return new HttpSessionEventPublisher();
-    }
+    }*/
 
     /**
      * 配置 忽略拦截 的地址，一般为 静态目录地址

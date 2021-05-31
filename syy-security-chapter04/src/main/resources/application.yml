@@ -14,3 +14,13 @@ spring:
     url: jdbc:mysql://139.196.184.230:33066/syy_security?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: Cs@20180616
+
+  redis:
+    host: 139.196.184.230
+    port: 63799
+    password: Cs@20180616
+    database: 2
+    timeout: 5000
+
+
+

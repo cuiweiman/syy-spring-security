@@ -124,6 +124,27 @@ value 则是该主题对应的 sessionid 组成的一个集合）。
 不建议修改 spring security 默认对 URI 的限制，因为都是为了保证不受攻击。
 
 
+### 使用 Redis 实现 共享 Session 解决方案
+引入依赖，增添 redis 服务器连接 配置，然后在 SecurityConfig 中配置如下。security 会自动将 session 注册到 redis 中。
+
+> 注意需 去除 配置的 HttpSessionEventPublisher 创建销毁 session 事件的感知发布事件，否则仍然会使用 security 内部的 session 注册表。
+
+```java
+@Configuration
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Resource
+    FindByIndexNameSessionRepository sessionRepository;
+    @Bean
+    SpringSessionBackedSessionRegistry sessionRegistry() {
+        return new SpringSessionBackedSessionRegistry(sessionRepository);
+    }
+}
+```
+
+
+
+
+
 
 
 
