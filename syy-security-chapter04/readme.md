@@ -173,8 +173,18 @@ CSRF 防御，一个核心思路就是在前端请求中，添加一个随机数
     http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
     ```
 
+#### security 中 CSRF 源码分析
 
+> 大致过程：
+> - 生成 csrfToken 保存在 HttpSession 或者 Cookie 中。
+> - 请求到来时，从请求中提取出来 csrfToken，和保存的 csrfToken 做比较，进而判断出当前请求是否合法。
 
+- csrf 参数对象：CsrfToken，有两个实现类，DefaultCsrfToken（默认）、SaveOnAccessCsrfToken。
+- CsrfToken 的生成与保存：CsrfTokenRepository 接口，有四个实现类。
+    - generateToken 方法就是 CsrfToken 的生成过程。
+    - saveToken 方法就是保存 CsrfToken。
+    - loadToken 则是如何加载 CsrfToken。
+- 参数校验：CsrfFilter#doFilterInternal
 
 
 
