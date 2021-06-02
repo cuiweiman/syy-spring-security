@@ -125,6 +125,56 @@ value 则是该主题对应的 sessionid 组成的一个集合）。
 不建议修改 spring security 默认对 URI 的限制，因为都是为了保证不受攻击。
 
 
+### 会话固定攻击
+#### HttpSession
+HttpSession 是一个服务端的概念，服务端生成的 HttpSession 都会有一个对应的 sessionId，这个 sessionId 会通过 cookie 传递给前端，
+前端以后发送请求的时候，就带上这个 sessionId 参数，服务端看到这个 sessionId 就会把这个前端请求和服务端的某一个 HttpSession 对应起来
+形成“会话”的感觉。
+
+浏览器关闭并不会导致服务端的 HttpSession 失效，想让服务端的 HttpSession 失效，要么手动调用 HttpSession#invalidate 方法；
+要么等到 session 自动过期；要么重启服务端。
+
+但是为什么有的人会感觉浏览器关闭之后 session 就失效了呢？这是因为浏览器关闭之后，保存在浏览器里边的 sessionId 就丢了（默认情况下），
+所以当浏览器再次访问服务端的时候，服务端会给浏览器重新分配一个 sessionId ，这个 sessionId 和之前的 HttpSession 对应不上，
+所以用户就会感觉 session 失效。可以通过手动配置，让浏览器重启之后 sessionId 不丢失，但是这样会带来安全隐患，所以一般不建议。
+
+在服务端的响应头中有一个 Set-Cookie 字段，该字段指示浏览器更新 sessionId，同时还有一个 **HttpOnly** 属性，这个表示通过
+JS 脚本无法读取到 Cookie 信息，这样能有效的防止 XSS 攻击。
+
+#### 会话固定攻击
+session fixation attack。正常来说，只要你不关闭浏览器，并且服务端的 HttpSession 也没有过期，那么维系服务端和浏览器的 sessionId
+是不会发生变化的，而会话固定攻击，则是利用这一机制，借助受害者用相同的会话 ID 获取认证和授权，然后利用该会话 ID 劫持受害者的会话以
+成功冒充受害者，造成会话固定攻击。
+
+**会话固定攻击 流程：**
+1. 攻击者自己可以正常访问淘宝网站，在访问的过程中，淘宝网站给攻击者分配了一个 sessionId。
+2. 攻击者利用自己拿到的 sessionId 构造一个淘宝网站的链接，并把该链接发送给受害者。
+3. 受害者使用该链接登录淘宝网站（该链接中含有 sessionId），登录成功后，一个合法的会话就成功建立。
+4. 攻击者利用手里的 sessionId 冒充受害者。
+
+#### 如何防御？
+> 这个问题的根源在 sessionId 不变，如果用户在未登录时拿到的是一个 sessionId，登录之后服务端给用户重新换一个 sessionId，就可以防止会话固定攻击了。
+
+**SpringSecurity默认支持 预防 会话固定攻击,主要体现在：**
+1. 请求地址中有 分号 ; 请求会被直接拒绝。
+2. 响应的 Set-Cookie 字段中有 HttpOnly 属性，这种方式避免了通过 XSS 攻击来获取 Cookie 中的会话信息进而达成会话固定攻击。
+3. 让 sessionId 变一下。既然问题是由于 sessionId 不变导致的，那我就让 sessionId 变一下：.sessionManagement().sessionFixation().**();
+    1. migrateSession：在登录成功之后，创建一个新的会话，然后讲旧的 session 中的信息复制到新的 session 中，「默认即此」。
+    2. none：表示不做任何事情，继续使用旧的 session。
+    3. changeSessionId：表示 session 不变，但是会修改 sessionId，这实际上用到了 Servlet 容器提供的防御会话固定攻击。
+    4. newSession：表示登录后创建一个新的 session。
+
+```java
+http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+.and()
+.sessionManagement()
+// 防止 会话固定攻击，默认 即是 如此
+.sessionFixation().migrateSession()
+```
+
+
+
+
 ### 使用 Redis 实现 共享 Session 解决方案
 引入依赖，增添 redis 服务器连接 配置，然后在 SecurityConfig 中配置如下。security 会自动将 session 注册到 redis 中。
 

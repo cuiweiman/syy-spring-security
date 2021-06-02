@@ -162,6 +162,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // 设置 客户端最大登录次数 为 1，超过次数后 默认会直接 踢掉 最先登录的客户端
                 .sessionManagement()
+                // 防止 会话固定攻击，默认 即是 如此
+                .sessionFixation().migrateSession()
                 .maximumSessions(1)
                 // 客户端登录 达到最大次数后，禁止新的客户端登录
                 .maxSessionsPreventsLogin(true);
