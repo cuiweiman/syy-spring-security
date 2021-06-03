@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>syy</title>
+</head>
+<body>
+<div>あなたに会いたいです</div>
+
+<div>
+    <ul>
+        <li>前往 Auth 服务进行 第三方平台 客户端 校验</li>
+        <li>client_id：客户端 ID，在授 权服务器 中的实际配置填写 AuthorizationServer.configure(ClientDetailsServiceConfigurer)</li>
+        <li>response_type: 响应类型，token 表示 简化模式 直接返回授权码。</li>
+        <li>redirect_uri 表示授权成功后的重定向地址，这里表示回到第三方应用的首页,即本页。</li>
+        <li>scope 表示授权范围。</li>
+    </ul>
+</div>
+<a href="http://localhost:9201/oauth/authorize?client_id=CSClient&response_type=token&scope=all&redirect_uri=http://localhost:9203/index.html">第三方登录</a>
+
+<div id="div1"></div>
+
+<script src="js/jquery.min.js"></script>
+<script>
+    //提取出参数，类似这种格式#access_token=9fda1800-3b57-4d32-ad01-05ff700d44cc&token_type=bearer&expires_in=7199
+    // 简化模式 没有后端，直接使用 js 截取 token 令牌 去资源服务器获取资源
+    let hash = window.location.hash;
+    if (hash && hash.length > 0) {
+        let params = hash.substring(1).split("&");
+        let token = params[0].split("=");//[access_token,9fda1800-3b57-4d32-ad01-05ff700d44cc]
+        $.ajax({
+            type: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + token[1]
+            },
+            url: 'http://localhost:9202/admin/hello',
+            success: function (data) {
+                $("#div1").html(data)
+            }
+        })
+    }
+</script>
+
+</body>
+</html>
