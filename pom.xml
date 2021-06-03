@@ -16,6 +16,7 @@
         <module>syy-security-chapter02</module>
         <module>syy-security-chapter03</module>
         <module>syy-security-chapter04</module>
+        <module>syy-security-oauth01</module>
     </modules>
 
     <properties>
