@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>syy-oauth04-client</title>
+</head>
+<body>
+<div>あなたに会いたいです</div>
+
+<div>
+    <ul>
+        <li>前往 Auth 服务进行 第三方平台 客户端 校验</li>
+        <li>client_id：客户端 ID，在授 权服务器 中的实际配置填写 AuthorizationServer.configure(ClientDetailsServiceConfigurer)</li>
+        <li>response_type: 响应类型，code 表示响应一个授权码。</li>
+        <li>redirect_uri 表示授权成功后的重定向地址，这里表示回到第三方应用的首页,即本页。</li>
+        <li>scope 表示授权范围。</li>
+    </ul>
+</div>
+<a href="http://localhost:9401/oauth/authorize?client_id=CSClient&response_type=code&scope=all&redirect_uri=http://localhost:9403/index.html">第三方登录</a>
+
+<h1 th:text="${msg}"></h1>
+
+</body>
+</html>

@@ -18,6 +18,8 @@
         <module>syy-security-chapter04</module>
         <module>syy-security-oauth01</module>
         <module>syy-security-oauth02</module>
+        <module>syy-security-oauth03</module>
+        <module>syy-security-oauth04</module>
     </modules>
 
     <properties>
