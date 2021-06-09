@@ -1,0 +1,8 @@
+server:
+  port: 9503
+
+spring:
+  resources:
+    static-locations: classpath:/templates
+
+

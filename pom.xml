@@ -20,6 +20,7 @@
         <module>syy-security-oauth02</module>
         <module>syy-security-oauth03</module>
         <module>syy-security-oauth04</module>
+        <module>syy-security-oauth05</module>
     </modules>
 
     <properties>
