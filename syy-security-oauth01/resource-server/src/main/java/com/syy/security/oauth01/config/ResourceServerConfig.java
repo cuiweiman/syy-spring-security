@@ -21,6 +21,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     /**
      * 配置了 access_token 的校验地址、client_id、client_secret 这三个信息，
      * 当用户来资源服务器请求资源时，会携带上一个 access_token，通过这里的配置，就能够校验出 token 是否正确等。
+     *
+     * 第三方客户端 携带 token 向资源服务器请求信息，资源服务器 拿到 token 后，通过 auth-server 的远程
+     * url 进行 token 校验，若校验通过， 则第三方访问资源服务器通过。
      * <p>
      * 在这里，资源服务器和授权服务器是分开的，如果资源服务器和授权服务器是放在一起的话，
      * 就不需要配置 RemoteTokenServices 了。
